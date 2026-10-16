@@ -105,6 +105,10 @@ end
 -----------------------------------------
 -- DragonUI, when installed, only reskins the stock frames.
 
+-- DragonUI's nine-slice helper: DragonUI_NineSlice since DragonUI's 2026 rewrite, NineSliceUtils
+-- before it.
+local NineSliceUtils = _G.DragonUI_NineSlice or _G.NineSliceUtils
+
 local function dragon()
 	local D = _G.DragonUI
 	if D and D._dir and D.SafeSetAtlas and D.SkinRedButton and NineSliceUtils then
