@@ -105,6 +105,10 @@ end
 -----------------------------------------
 -- DragonUI, when installed, only reskins the stock frames.
 
+-- DragonUI's nine-slice helper: DragonUI_NineSlice since DragonUI's 2026 rewrite, NineSliceUtils
+-- before it.
+local NineSliceUtils = _G.DragonUI_NineSlice or _G.NineSliceUtils
+
 local function dragon()
 	local D = _G.DragonUI
 	if D and D._dir and D.SafeSetAtlas and D.SkinRedButton and NineSliceUtils then
@@ -160,6 +164,9 @@ local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 title:SetPoint("TOP", header, "TOP", 0, -14)
 title:SetText("Black Market")
 
+-- DragonUI's metal frame, when it's dressed in one; the close button goes on top of it.
+local dragonChrome
+
 do
 	local D = dragon()
 	if D then
@@ -179,6 +186,7 @@ do
 			title:SetParent(chrome)
 			title:ClearAllPoints()
 			title:SetPoint("TOP", frame, "TOP", 0, -5)
+			dragonChrome = chrome
 		end
 	end
 end
@@ -199,6 +207,15 @@ end)
 
 local close = CreateFrame("Button", "BlackMarketFrameCloseButton", frame, "UIPanelCloseButton")
 close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -4)
+do
+	local CP = dragonChrome and _G.DragonUI.CharacterPanel
+	if CP and CP.ModernizeCloseButton then
+		close:ClearAllPoints()
+		close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 2, 2)
+		CP.ModernizeCloseButton(close, dragonChrome, 1, 0)
+		close:SetFrameLevel(dragonChrome:GetFrameLevel() + 5)
+	end
+end
 
 -- Madam Goya's motto, in the corner where retail had her portrait.
 local motto = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
