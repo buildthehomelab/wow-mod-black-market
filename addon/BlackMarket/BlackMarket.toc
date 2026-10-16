@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title: Black Market
+## Notes: The Mists of Pandaria Black Market Auction House window, backed by the mod-black-market server module.
+## Author: buildthehomelab
+## Version: 1.0.0
+## OptionalDeps: DragonUI
+## SavedVariables: BlackMarketDB
+
+BlackMarket.lua

@@ -1,0 +1,111 @@
+[worldserver]
+
+########################################
+# mod-black-market
+#
+# A Mists of Pandaria style Black Market Auction House, run by Mister Chu in Booty Bay. Rare
+# goods go up once a day and take bids only. What can come up is the world table
+# mod_black_market_template; the auctions running now are the characters table
+# mod_black_market_auction.
+########################################
+
+#
+#    BlackMarket.Enable
+#        Description: Master switch. With 0 no new auctions go up and nobody can bid. Running
+#                     auctions still end and pay out.
+#        Default:     1
+#
+
+BlackMarket.Enable = 1
+
+#
+#    BlackMarket.MinLevel
+#        Description: Level a character needs to bid. Lower levels can still look.
+#        Default:     60
+#
+
+BlackMarket.MinLevel = 60
+
+#
+#    BlackMarket.MaxAuctions
+#        Description: How many auctions run at once. A restock fills up to this many. 1-50.
+#        Default:     10
+#
+
+BlackMarket.MaxAuctions = 10
+
+#
+#    BlackMarket.RefreshHour
+#        Description: Hour of the day (server time, 0-23) when the new shipment comes in.
+#                     A server that was down at that hour (or a fresh install) restocks when
+#                     it starts.
+#        Default:     18
+#
+
+BlackMarket.RefreshHour = 18
+
+#
+#    BlackMarket.Duration.MinHours
+#    BlackMarket.Duration.MaxHours
+#        Description: How long a new auction runs, picked at random between these (plus up
+#                     to 59 minutes, so they don't all end on the hour).
+#        Default:     20, 30
+#
+
+BlackMarket.Duration.MinHours = 20
+BlackMarket.Duration.MaxHours = 30
+
+#
+#    BlackMarket.SnipeMinutes
+#        Description: A bid with less than this many minutes left keeps the auction open
+#                     for this many minutes from the bid. 0 switches it off.
+#        Default:     10
+#
+
+BlackMarket.SnipeMinutes = 10
+
+#
+#    BlackMarket.IncrementPct
+#        Description: How much a bid must beat the current one by, in percent, rounded down
+#                     to whole gold (at least 1 gold).
+#        Default:     5
+#
+
+BlackMarket.IncrementPct = 5
+
+#
+#    BlackMarket.ProgressionGate
+#        Description: With mod-individual-progression installed, a character can only bid on
+#                     an item once they reach the template's ip_state. Everyone can see
+#                     everything. Without that module this does nothing.
+#        Default:     1
+#
+
+BlackMarket.ProgressionGate = 1
+
+#
+#    BlackMarket.RefuseKnown
+#        Description: Refuse a bid on a mount or companion the character already knows.
+#        Default:     1
+#
+
+BlackMarket.RefuseKnown = 1
+
+#
+#    BlackMarket.MailExpiryDays
+#        Description: Days before an unread mail from the Black Market (a won item, or an
+#                     outbid refund) expires. Mail from an NPC isn't returned when it expires:
+#                     it is deleted with what's in it, so keep this long. 1-365.
+#        Default:     90
+#
+
+BlackMarket.MailExpiryDays = 90
+
+#
+#    BlackMarket.Announce
+#        Description: Tell every online character of BlackMarket.MinLevel or higher when a
+#                     new shipment comes in, with the hot item.
+#        Default:     1
+#
+
+BlackMarket.Announce = 1
