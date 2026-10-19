@@ -122,7 +122,7 @@ local function skinButton(btn)
 end
 
 -- A recessed pane: a dark tooltip pane with DragonUI, the stock options-box look without
--- (OptionsBoxTemplate's tooltip border and background at its colours).
+-- (OptionsBoxTemplate's tooltip border at its colour, over a faint tooltip background).
 local function inset(parent)
 	local pane = CreateFrame("Frame", nil, parent)
 	if dragon() then
@@ -257,7 +257,7 @@ local HEADER_HEIGHT = 24
 
 do
 	local x = 6
-	for _, col in ipairs(COLUMNS) do
+	for i, col in ipairs(COLUMNS) do
 		if dragon() then
 			local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			label:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x, 3)
@@ -265,10 +265,13 @@ do
 			label:SetJustifyH(col[1] == "Current Bid" and "RIGHT" or "LEFT")
 			label:SetText(col[1])
 		else
-			-- WhoFrameColumnHeaderTemplate: left cap, stretched middle, right cap.
+			-- WhoFrameColumnHeaderTemplate: left cap, stretched middle, right cap. Like the Who
+			-- list's, each tab overlaps the one before by 2px so the caps meet.
+			local overlap = i > 1 and 2 or 0
 			local h = CreateFrame("Frame", nil, frame)
-			h:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x - 6, -2)
-			h:SetSize(col[2], HEADER_HEIGHT)
+			h:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x - 6 - overlap, -2)
+			h:SetSize(col[2] + overlap, HEADER_HEIGHT)
+			h:SetFrameLevel(list:GetFrameLevel() + 1)
 			local function tab(l, r, w)
 				local tex = h:CreateTexture(nil, "BACKGROUND")
 				tex:SetTexture("Interface\\FriendsFrame\\WhoFrame-ColumnTabs")
@@ -286,9 +289,10 @@ do
 			tm:SetPoint("TOPRIGHT", tr, "TOPLEFT")
 			local label = h:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 			label:SetPoint("LEFT", h, "LEFT", 8, 0)
-			label:SetPoint("RIGHT", h, "RIGHT", -8, 0)
+			label:SetPoint("RIGHT", h, "RIGHT", i == #COLUMNS and -4 or -8, 0)
 			label:SetJustifyH(col[1] == "Current Bid" and "RIGHT" or "LEFT")
-			label:SetText(col[1])
+			-- "Level" doesn't fit the narrow tab; the Who list says "Lvl" too.
+			label:SetText(col[1] == "Level" and (LEVEL_ABBR or "Lvl") or col[1])
 		end
 		x = x + col[2]
 	end
@@ -595,9 +599,19 @@ local function drawHot()
 
 	local name, _, quality, _, _, icon = itemInfo(h.item)
 	hotButton.icon:SetTexture(icon)
+	if not GetItemInfo(h.item) then
+		missingInfo = true
+	end
 	if not dragon() then
-		local r, g, b = GetItemQualityColor(GetItemInfo(h.item) and quality >= 2 and quality or 4)
-		hotGlow:SetVertexColor(r, g, b)
+		-- Like the stock quality borders: none below uncommon, epic while the item loads.
+		local known = GetItemInfo(h.item) ~= nil
+		if known and quality < 2 then
+			hotGlow:Hide()
+		else
+			local r, g, b = GetItemQualityColor(known and quality or 4)
+			hotGlow:SetVertexColor(r, g, b)
+			hotGlow:Show()
+		end
 	end
 	hotName:SetText(name)
 	hotSeller:SetText("Seller: " .. h.seller)
