@@ -121,16 +121,29 @@ local function skinButton(btn)
 	if D then pcall(D.SkinRedButton, btn) end
 end
 
+-- A recessed pane: a dark tooltip pane with DragonUI, the stock options-box look without
+-- (OptionsBoxTemplate's tooltip border at its colour, over a faint tooltip background).
 local function inset(parent)
 	local pane = CreateFrame("Frame", nil, parent)
-	pane:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 14,
-		insets = { left = 3, right = 3, top = 3, bottom = 3 },
-	})
-	pane:SetBackdropColor(0, 0, 0, 0.75)
-	pane:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+	if dragon() then
+		pane:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 14,
+			insets = { left = 3, right = 3, top = 3, bottom = 3 },
+		})
+		pane:SetBackdropColor(0, 0, 0, 0.75)
+		pane:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+	else
+		pane:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 16,
+			insets = { left = 5, right = 5, top = 5, bottom = 5 },
+		})
+		pane:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
+		pane:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+	end
 	return pane
 end
 
@@ -239,14 +252,48 @@ local COLUMNS = {
 	{ "Current Bid", 96 },
 }
 
+-- Column labels: bare text over the pane with DragonUI, the Who list's column tabs without.
+local HEADER_HEIGHT = 24
+
 do
 	local x = 6
-	for _, col in ipairs(COLUMNS) do
-		local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		label:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x, 3)
-		label:SetWidth(col[2])
-		label:SetJustifyH(col[1] == "Current Bid" and "RIGHT" or "LEFT")
-		label:SetText(col[1])
+	for i, col in ipairs(COLUMNS) do
+		if dragon() then
+			local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+			label:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x, 3)
+			label:SetWidth(col[2])
+			label:SetJustifyH(col[1] == "Current Bid" and "RIGHT" or "LEFT")
+			label:SetText(col[1])
+		else
+			-- WhoFrameColumnHeaderTemplate: left cap, stretched middle, right cap. Like the Who
+			-- list's, each tab overlaps the one before by 2px so the caps meet.
+			local overlap = i > 1 and 2 or 0
+			local h = CreateFrame("Frame", nil, frame)
+			h:SetPoint("BOTTOMLEFT", list, "TOPLEFT", x - 6 - overlap, -2)
+			h:SetSize(col[2] + overlap, HEADER_HEIGHT)
+			h:SetFrameLevel(list:GetFrameLevel() + 1)
+			local function tab(l, r, w)
+				local tex = h:CreateTexture(nil, "BACKGROUND")
+				tex:SetTexture("Interface\\FriendsFrame\\WhoFrame-ColumnTabs")
+				tex:SetTexCoord(l, r, 0, 0.75)
+				tex:SetHeight(HEADER_HEIGHT)
+				if w then tex:SetWidth(w) end
+				return tex
+			end
+			local tl = tab(0, 0.078125, 5)
+			tl:SetPoint("TOPLEFT", h, "TOPLEFT")
+			local tr = tab(0.90625, 0.96875, 4)
+			tr:SetPoint("TOPRIGHT", h, "TOPRIGHT")
+			local tm = tab(0.078125, 0.90625)
+			tm:SetPoint("TOPLEFT", tl, "TOPRIGHT")
+			tm:SetPoint("TOPRIGHT", tr, "TOPLEFT")
+			local label = h:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+			label:SetPoint("LEFT", h, "LEFT", 8, 0)
+			label:SetPoint("RIGHT", h, "RIGHT", i == #COLUMNS and -4 or -8, 0)
+			label:SetJustifyH(col[1] == "Current Bid" and "RIGHT" or "LEFT")
+			-- "Level" doesn't fit the narrow tab; the Who list says "Lvl" too.
+			label:SetText(col[1] == "Level" and (LEVEL_ABBR or "Lvl") or col[1])
+		end
 		x = x + col[2]
 	end
 end
@@ -369,6 +416,8 @@ hotButton.icon:SetAllPoints(hotButton)
 local hotGlow = hotButton:CreateTexture(nil, "OVERLAY")
 hotGlow:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
 hotGlow:SetBlendMode("ADD")
+-- Orange with DragonUI; without it the item's quality colour (epic until the item is known),
+-- as the stock quality borders do. See drawHot.
 hotGlow:SetVertexColor(1, 0.3, 0.1)
 hotGlow:SetPoint("CENTER", hotButton, "CENTER", 0, 0)
 hotGlow:SetSize(118, 118)
@@ -548,8 +597,22 @@ local function drawHot()
 	for _, p in ipairs(parts) do p:Show() end
 	hotNone:Hide()
 
-	local name, _, _, _, _, icon = itemInfo(h.item)
+	local name, _, quality, _, _, icon = itemInfo(h.item)
 	hotButton.icon:SetTexture(icon)
+	if not GetItemInfo(h.item) then
+		missingInfo = true
+	end
+	if not dragon() then
+		-- Like the stock quality borders: none below uncommon, epic while the item loads.
+		local known = GetItemInfo(h.item) ~= nil
+		if known and quality < 2 then
+			hotGlow:Hide()
+		else
+			local r, g, b = GetItemQualityColor(known and quality or 4)
+			hotGlow:SetVertexColor(r, g, b)
+			hotGlow:Show()
+		end
+	end
 	hotName:SetText(name)
 	hotSeller:SetText("Seller: " .. h.seller)
 	if h.numBids > 0 then

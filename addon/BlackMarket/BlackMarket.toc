@@ -2,7 +2,7 @@
 ## Title: Black Market
 ## Notes: The Mists of Pandaria Black Market Auction House window, backed by the mod-black-market server module.
 ## Author: buildthehomelab
-## Version: 1.0.1
+## Version: 1.0.2
 ## OptionalDeps: DragonUI
 ## SavedVariables: BlackMarketDB
 
