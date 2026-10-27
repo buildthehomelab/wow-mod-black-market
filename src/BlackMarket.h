@@ -83,7 +83,8 @@ namespace BlackMarket
         EraLocked,
         AlreadyKnown,
         TooFar,
-        TooHigh
+        TooHigh,
+        SelfFound
     };
 
     struct Listing

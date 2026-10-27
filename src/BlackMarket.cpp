@@ -21,6 +21,9 @@
 #include "Player.h"
 #include "Random.h"
 #include "Timer.h"
+#if __has_include("ChallengesApi.h")
+#include "ChallengesApi.h"
+#endif
 #include <algorithm>
 #include <map>
 #include <mutex>
@@ -596,6 +599,12 @@ namespace BlackMarket
         if (!broker || !player->GetNPCIfCanInteractWith(broker, UNIT_NPC_FLAG_GOSSIP))
             return BidResult::TooFar;
 
+#if __has_include("ChallengesApi.h")
+        // mod-challenges: the Black Market is an auction house, and Self-Found characters use none.
+        if (Challenges::IsSelfFound(player->GetGUID().GetCounter()))
+            return BidResult::SelfFound;
+#endif
+
         if (player->GetLevel() < sConfig.minLevel)
             return BidResult::LevelLocked;
 
@@ -670,6 +679,7 @@ namespace BlackMarket
             case BidResult::AlreadyKnown:      return "You already have one of those.";
             case BidResult::TooFar:            return "Bids are taken in person. Go see Mister Chu.";
             case BidResult::TooHigh:           return "Nobody can pay that much.";
+            case BidResult::SelfFound:         return "Swore to find your own, did you? Then go find it. I don't sell to your kind.";
         }
         return "Something went wrong.";
     }
