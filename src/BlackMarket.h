@@ -84,7 +84,7 @@ namespace BlackMarket
         AlreadyKnown,
         TooFar,
         TooHigh,
-        SelfFound
+        Challenge  // mod-challenges: Self-Found or Hardcore
     };
 
     struct Listing

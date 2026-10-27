@@ -600,9 +600,10 @@ namespace BlackMarket
             return BidResult::TooFar;
 
 #if __has_include("ChallengesApi.h")
-        // mod-challenges: the Black Market is an auction house, and Self-Found characters use none.
-        if (Challenges::IsSelfFound(player->GetGUID().GetCounter()))
-            return BidResult::SelfFound;
+        // mod-challenges: the Black Market is an auction house, and Self-Found and Hardcore characters
+        // use none.
+        if (Challenges::IsAuctionClosed(player->GetGUID().GetCounter()))
+            return BidResult::Challenge;
 #endif
 
         if (player->GetLevel() < sConfig.minLevel)
@@ -679,7 +680,7 @@ namespace BlackMarket
             case BidResult::AlreadyKnown:      return "You already have one of those.";
             case BidResult::TooFar:            return "Bids are taken in person. Go see Mister Chu.";
             case BidResult::TooHigh:           return "Nobody can pay that much.";
-            case BidResult::SelfFound:         return "Swore to find your own, did you? Then go find it. I don't sell to your kind.";
+            case BidResult::Challenge:         return "Swore an oath at the shrine, did you? Then keep it. I don't sell to your kind.";
         }
         return "Something went wrong.";
     }
